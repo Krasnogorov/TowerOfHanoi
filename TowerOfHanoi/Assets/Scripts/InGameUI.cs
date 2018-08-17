@@ -6,19 +6,42 @@ using UnityEngine.UI;
  */
 public class InGameUI : MonoBehaviour
 {
+    // Input field with count of disk
     [SerializeField]
     private InputField diskCountInput;
+    // GameObject - panel with start interfface
     [SerializeField]
     private GameObject startPanel;
-
-	void Start ()
+    // Controller of simulation
+    [SerializeField]
+    private SimulationController controller;
+    // Label with status of simulation
+    [SerializeField]
+    private Text finishLabel;
+    // Label with current step
+    [SerializeField]
+    private Text stepLabel;
+    /**
+     * We should subscribe to notification from controller
+     */
+    void Start ()
     {
-        diskCountInput.text = "";	
+        diskCountInput.text = "";
+        controller.OnSimulationFinished += OnSimulationFinished;
+        controller.OnStepChanged += OnStepChanged;
 	}
     /**
-     * This method returns integer value from content of input field. I changed ContentType property of input field to avoid validation of
-     * content in every calls of OnValueChanged method. But if someone will change ContentType property, this method returns 0.
+     * We should unsubscribe from notifications
      */
+    public void OnDestroy()
+    {
+        controller.OnSimulationFinished -= OnSimulationFinished;
+        controller.OnStepChanged -= OnStepChanged;
+    }
+    /**
+        * This method returns integer value from content of input field. I changed ContentType property of input field to avoid validation of
+        * content in every calls of OnValueChanged method. But if someone will change ContentType property, this method returns 0.
+        */
     private int GetDiskCount()
     {
         int ret = 0;
@@ -37,9 +60,10 @@ public class InGameUI : MonoBehaviour
         int diskCount = GetDiskCount();
         if (diskCount > 0)
         {
+            finishLabel.text = "Simulation started";
             startPanel.SetActive(false);
-            // TODO: Start simulation here
-
+            controller.InitWithCount(diskCount);
+            controller.StartSimulation();
         }
         else
         {
@@ -53,7 +77,21 @@ public class InGameUI : MonoBehaviour
      */
     public void OnRestartClick()
     {
-        // TODO: Stop simulation here
+        controller.StopSimulation();
         diskCountInput.text = "";
+    }
+    /** 
+     * Callback for finish of simulation
+     */
+    public void OnSimulationFinished()
+    {
+        finishLabel.text = "Finished";
+    }
+    /**
+     * Callback for change index of step
+     */
+    public void OnStepChanged(int step, int max)
+    {
+        stepLabel.text = step.ToString() + "/" + max.ToString();
     }
 }
