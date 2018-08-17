@@ -21,6 +21,9 @@ public class DiskMovingController : MonoBehaviour
     private MovingState mCurrentState = MovingState.StateStay;
     // Next position of moving
     private Vector3 mNextPosition;
+    // Speed of moving
+    [SerializeField]
+    private float movingSpeed = 10.0f;
     /**
      * Save required position, change current state. 
      */
@@ -37,7 +40,7 @@ public class DiskMovingController : MonoBehaviour
      */
     public void FixedUpdate()
     {
-        float step = 10 * Time.deltaTime;
+        float step = movingSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, mNextPosition, step);
         if (Math.Abs(transform.position.x - mNextPosition.x) < float.Epsilon &&
             Math.Abs(transform.position.y - mNextPosition.y) < float.Epsilon &&
@@ -55,6 +58,7 @@ public class DiskMovingController : MonoBehaviour
                     break;
                 case MovingState.StateMoveDown:
                     GetComponent<Disk>().FinishMoving();
+                    mCurrentState = MovingState.StateStay;
                     //Disable component to avoid call update functions
                     enabled = false;
                     break;

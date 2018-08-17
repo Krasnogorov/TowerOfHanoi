@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /**
@@ -12,6 +13,11 @@ public class Tower : MonoBehaviour
     public GameObject movingHelper;
     // Prefab of disk
     public GameObject diskPrefab;
+    // Controller of simulation
+    public SimulationController controller;
+    // Notification about finish of moving
+    public Action OnStepFinished;
+
     /**
      * Initialize tower with count of disks.
      * Instantiate disk object and setup correct information
@@ -48,7 +54,7 @@ public class Tower : MonoBehaviour
     public void FinishMovingDisk(Disk newDisk)
     {
         mDiskList.Add(newDisk);
-        // TODO: Notify simulator - step finished
+        OnStepFinished();
     }
     /**
      * Get position for top disk
@@ -56,5 +62,16 @@ public class Tower : MonoBehaviour
     public Vector3 GetTopPosition()
     {
         return new Vector3(transform.position.x, -3 + mDiskList.Count, transform.position.z);
+    }
+    /**
+     * Remove all disks and destroy gameobjects
+     */
+    public void Cleanup()
+    {
+        foreach (Disk disk in mDiskList)
+        {
+            DestroyImmediate(disk.gameObject);
+        }
+        mDiskList.Clear();
     }
 }
